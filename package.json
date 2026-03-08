@@ -1,0 +1,16 @@
+{
+  "name": "book-tracker",
+  "version": "1.0.0",
+  "description": "Book reading tracker — intentionally vulnerable for security education",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "node --watch app.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "cookie-parser": "^1.4.6",
+    "express": "^4.18.2",
+    "sqlite3": "^5.1.7"
+  }
+}

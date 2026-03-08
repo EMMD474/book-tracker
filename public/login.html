@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login — BookTracker</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="navbar-brand" href="/">📚 BookTracker</a>
+    <div class="navbar-links">
+      <a href="/">Home</a>
+      <a href="/register.html">Register</a>
+    </div>
+  </nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <div class="auth-logo">📚</div>
+      <h1>Welcome back</h1>
+      <p class="auth-sub">Sign in to your BookTracker account</p>
+
+      <div id="banner"></div>
+
+      <form method="POST" action="/login" id="login-form">
+        <input type="hidden" name="_returnTo" id="return-to-field" value="">
+
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username"
+                 placeholder="Enter your username"
+                 autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password"
+                 placeholder="Enter your password"
+                 autocomplete="current-password" required>
+        </div>
+
+        <button type="submit" class="btn btn-full">Sign In</button>
+
+        <div class="divider">or</div>
+
+        <div class="form-footer">
+          <span style="font-size:.85rem; color:var(--clr-muted)">Don't have an account?</span>
+          <a href="/register.html">Create one →</a>
+        </div>
+      </form>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>BookTracker &copy; 2025</p>
+  </footer>
+
+  <script>
+    (function () {
+      const params   = new URLSearchParams(window.location.search);
+      const error    = params.get('error');
+      const reg      = params.get('registered');
+      const logout   = params.get('logout');
+      const returnTo = params.get('returnTo');
+      const banner   = document.getElementById('banner');
+
+      // Pass the return URL through the form so POST /login can redirect back
+      if (returnTo) {
+        document.getElementById('return-to-field').value = decodeURIComponent(returnTo);
+      }
+
+      if (error === 'invalid') {
+        banner.innerHTML = '<div class="alert alert-danger">Invalid username or password. Try again.</div>';
+      } else if (error === 'missing') {
+        banner.innerHTML = '<div class="alert alert-danger">Please fill in both fields.</div>';
+      } else if (reg === '1') {
+        banner.innerHTML = '<div class="alert alert-success">Account created! You can now log in.</div>';
+      } else if (logout === '1') {
+        banner.innerHTML = '<div class="alert alert-success">You have been logged out.</div>';
+      } else if (returnTo) {
+        banner.innerHTML = '<div class="alert alert-warning">Sign in to continue.</div>';
+      }
+    })();
+  </script>
+
+</body>
+</html>

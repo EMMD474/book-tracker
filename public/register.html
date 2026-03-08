@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Register — BookTracker</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <nav class="navbar">
+    <a class="navbar-brand" href="/">📚 BookTracker</a>
+    <div class="navbar-links">
+      <a href="/">Home</a>
+      <a href="/login.html">Login</a>
+    </div>
+  </nav>
+
+  <div class="auth-wrapper">
+    <div class="auth-card">
+
+      <div class="auth-logo">✍️</div>
+      <h1>Create Account</h1>
+      <p class="auth-sub">Start tracking your reading journey today</p>
+
+      <div id="banner"></div>
+
+      <form method="POST" action="/register" id="register-form">
+
+        <div class="form-group">
+          <label for="username">Username *</label>
+          <input type="text" id="username" name="username"
+                 placeholder="Choose a username"
+                 autocomplete="username" required>
+        </div>
+
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email"
+                 placeholder="you@example.com"
+                 autocomplete="email">
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password *</label>
+          <input type="password" id="password" name="password"
+                 placeholder="Choose a password"
+                 autocomplete="new-password" required>
+        </div>
+
+        <div class="form-group">
+          <label for="confirm_password">Confirm Password *</label>
+          <input type="password" id="confirm_password" name="confirm_password"
+                 placeholder="Repeat your password"
+                 autocomplete="new-password" required>
+        </div>
+
+        <button type="submit" class="btn btn-full">Create Account</button>
+
+        <div class="divider">or</div>
+
+        <div class="form-footer">
+          <span style="font-size:.85rem; color:var(--clr-muted)">Already have an account?</span>
+          <a href="/login.html">Sign in →</a>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>BookTracker &copy; 2025</p>
+  </footer>
+
+  <script>
+    (function () {
+      const params = new URLSearchParams(window.location.search);
+      const error  = params.get('error');
+      const banner = document.getElementById('banner');
+      if (error === 'missing') {
+        banner.innerHTML = '<div class="alert alert-danger">Username and password are required.</div>';
+      }
+    })();
+
+    document.getElementById('register-form').addEventListener('submit', function (e) {
+      const pw  = document.getElementById('password').value;
+      const cpw = document.getElementById('confirm_password').value;
+      if (pw !== cpw) {
+        e.preventDefault();
+        document.getElementById('banner').innerHTML =
+          '<div class="alert alert-danger">Passwords do not match.</div>';
+      }
+    });
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<!--
+  index.html — BookTracker landing page
+  ⚠️  EDUCATIONAL / SECURITY TRAINING USE ONLY ⚠️
+  Part of an intentionally vulnerable demo application.
+  Do NOT deploy to a public server.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BookTracker — Track Your Reading Journey</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+
+  <!-- ── Navigation ─────────────────────────────────────────── -->
+  <nav class="navbar">
+    <a class="navbar-brand" href="/">📚 BookTracker</a>
+    <!-- Links are swapped by the auth-nav script below -->
+    <div class="navbar-links" id="nav-links">
+      <a href="/">Home</a>
+      <a href="#books">Browse</a>
+      <a href="/register.html">Sign Up</a>
+      <a href="/login.html" class="btn btn-small">Login</a>
+    </div>
+  </nav>
+
+  <main class="container">
+
+    <!-- ── Hero ───────────────────────────────────────────────── -->
+    <section class="hero" id="hero">
+      <h1>Your Personal<br>Reading Companion</h1>
+      <p>
+        Keep track of every book you read, monitor your progress,
+        and build a reading habit that sticks.
+      </p>
+      <div class="hero-cta">
+        <a href="/register.html" class="btn">Get Started Free</a>
+        <a href="/login.html"    class="btn btn-outline">Sign In</a>
+      </div>
+    </section>
+
+    <!-- ── Feature highlights ─────────────────────────────────── -->
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">📖</div>
+        <h3>Track Progress</h3>
+        <p>Log exactly how far you've gotten through any book with a simple percentage slider.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📊</div>
+        <h3>Reading Stats</h3>
+        <p>See your reading velocity and completion rates at a glance on your personal dashboard.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🔖</div>
+        <h3>Book Library</h3>
+        <p>Maintain a personal library of every title you've started, finished, or want to read.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🎯</div>
+        <h3>Set Goals</h3>
+        <p>Challenge yourself with yearly reading goals and track how close you are to hitting them.</p>
+      </div>
+    </div>
+
+    <!-- ── Featured books grid ────────────────────────────────── -->
+    <h2 class="section-title">Featured Books</h2>
+
+    <div class="book-grid" id="books">
+
+      <!-- Book 1 -->
+      <a href="/read?title=1984" class="book-card-link">
+        <div class="book-card">
+          <img
+            class="book-cover"
+            src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&q=80"
+            alt="1984 cover"
+            loading="lazy"
+          >
+          <div class="book-info">
+            <h3>1984</h3>
+            <span class="book-author">George Orwell</span>
+            <span class="book-genre">Dystopian Fiction · 1949</span>
+            <p class="book-desc">
+              Winston Smith navigates a totalitarian society ruled by the ever-watching Big Brother.
+              A haunting portrait of surveillance and the erasure of truth.
+            </p>
+            <div class="book-rating">
+              <span class="stars">★★★★★</span>
+              <span style="color:var(--clr-muted)">4.8</span>
+            </div>
+            <span class="book-cta">Login to read →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Book 2 -->
+      <a href="/read?title=dune" class="book-card-link">
+        <div class="book-card">
+          <img
+            class="book-cover"
+            src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&q=80"
+            alt="Dune cover"
+            loading="lazy"
+          >
+          <div class="book-info">
+            <h3>Dune</h3>
+            <span class="book-author">Frank Herbert</span>
+            <span class="book-genre">Science Fiction · 1965</span>
+            <p class="book-desc">
+              On the desert planet Arrakis, young Paul Atreides discovers his destiny
+              while navigating political intrigue and religious prophecy.
+            </p>
+            <div class="book-rating">
+              <span class="stars">★★★★★</span>
+              <span style="color:var(--clr-muted)">4.7</span>
+            </div>
+            <span class="book-cta">Login to read →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Book 3 -->
+      <a href="/read?title=the-hobbit" class="book-card-link">
+        <div class="book-card">
+          <img
+            class="book-cover"
+            src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&q=80"
+            alt="The Hobbit cover"
+            loading="lazy"
+          >
+          <div class="book-info">
+            <h3>The Hobbit</h3>
+            <span class="book-author">J.R.R. Tolkien</span>
+            <span class="book-genre">Fantasy · 1937</span>
+            <p class="book-desc">
+              Bilbo Baggins, a comfort-loving hobbit, is swept into an epic quest
+              across Middle-earth with a company of thirteen dwarves and a wizard.
+            </p>
+            <div class="book-rating">
+              <span class="stars">★★★★★</span>
+              <span style="color:var(--clr-muted)">4.9</span>
+            </div>
+            <span class="book-cta">Login to read →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Book 4 -->
+      <a href="/read?title=pride-and-prejudice" class="book-card-link">
+        <div class="book-card">
+          <img
+            class="book-cover"
+            src="https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=300&q=80"
+            alt="Pride and Prejudice cover"
+            loading="lazy"
+          >
+          <div class="book-info">
+            <h3>Pride and Prejudice</h3>
+            <span class="book-author">Jane Austen</span>
+            <span class="book-genre">Classic Romance · 1813</span>
+            <p class="book-desc">
+              The witty Elizabeth Bennet navigates the rigid social hierarchy of
+              Regency-era England while falling for the proud Mr. Darcy.
+            </p>
+            <div class="book-rating">
+              <span class="stars">★★★★½</span>
+              <span style="color:var(--clr-muted)">4.6</span>
+            </div>
+            <span class="book-cta">Login to read →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Book 5 -->
+      <a href="/read?title=great-gatsby" class="book-card-link">
+        <div class="book-card">
+          <img
+            class="book-cover"
+            src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=300&q=80"
+            alt="The Great Gatsby cover"
+            loading="lazy"
+          >
+          <div class="book-info">
+            <h3>The Great Gatsby</h3>
+            <span class="book-author">F. Scott Fitzgerald</span>
+            <span class="book-genre">Literary Fiction · 1925</span>
+            <p class="book-desc">
+              Through the eyes of Nick Carraway, we explore the mysterious world of
+              Jay Gatsby and the hollow glitter of the American Dream.
+            </p>
+            <div class="book-rating">
+              <span class="stars">★★★★</span>
+              <span style="color:var(--clr-muted)">4.3</span>
+            </div>
+            <span class="book-cta">Login to read →</span>
+          </div>
+        </div>
+      </a>
+
+      <!-- Book 6 -->
+      <a href="/read?title=brave-new-world" class="book-card-link">
+        <div class="book-card">
+          <img
+            class="book-cover"
+            src="https://images.unsplash.com/photo-1606112219348-204d7d8b94ee?w=300&q=80"
+            alt="Brave New World cover"
+            loading="lazy"
+          >
+          <div class="book-info">
+            <h3>Brave New World</h3>
+            <span class="book-author">Aldous Huxley</span>
+            <span class="book-genre">Dystopian Fiction · 1932</span>
+            <p class="book-desc">
+              A World State where citizens are engineered and conditioned for
+              social stability — until a "Savage" challenges the system from within.
+            </p>
+            <div class="book-rating">
+              <span class="stars">★★★★</span>
+              <span style="color:var(--clr-muted)">4.5</span>
+            </div>
+            <span class="book-cta">Login to read →</span>
+          </div>
+        </div>
+      </a>
+
+    </div><!-- /.book-grid -->
+
+    <!-- ── Call to action ─────────────────────────────────────── -->
+    <section id="cta" style="text-align:center; padding: 3rem 1rem;">
+      <h2 style="font-size:1.8rem; margin-bottom:.75rem;">Ready to start tracking?</h2>
+      <p style="color:var(--clr-muted); margin-bottom:1.5rem;">
+        Create a free account and add your first book in seconds.
+      </p>
+      <a href="/register.html" class="btn" style="font-size:1rem; padding:.75rem 2rem;">
+        Create Account
+      </a>
+    </section>
+
+  </main>
+
+  <!-- ── Footer ─────────────────────────────────────────────── -->
+  <footer class="footer">
+    <p>BookTracker &copy; 2025 &mdash; for educational / security-training use only &mdash;
+       <strong style="color:#ffbc43">⚠️ Intentionally Vulnerable App</strong></p>
+  </footer>
+
+  <script>
+    // Read auth cookies (httpOnly is false — intentional in this demo)
+    // and update the navbar + book card labels to reflect login state.
+    (function () {
+      function getCookie(name) {
+        const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
+        return m ? decodeURIComponent(m[1]) : null;
+      }
+
+      const username = getCookie('username');
+      if (!username) return; // guest — leave page as-is
+
+      // ── Navbar ──────────────────────────────────────────────
+      document.getElementById('nav-links').innerHTML = `
+        <a href="/">Home</a>
+        <a href="#books">Browse</a>
+        <a href="/dashboard">Dashboard</a>
+        <span class="nav-greeting">Hi, <strong>${username}</strong></span>
+        <a href="/logout" class="btn btn-small btn-outline">Logout</a>
+      `;
+
+      // ── Hero ─────────────────────────────────────────────────
+      document.getElementById('hero').innerHTML = `
+        <h1>Welcome back,<br>${username}!</h1>
+        <p>Pick up where you left off or dive into something new.</p>
+        <div class="hero-cta">
+          <a href="/dashboard" class="btn">Go to Dashboard</a>
+          <a href="#books"     class="btn btn-outline">Browse Books</a>
+        </div>
+      `;
+
+      // ── Book card CTAs ───────────────────────────────────────
+      document.querySelectorAll('.book-cta').forEach(function (el) {
+        el.textContent = 'Read Now →';
+      });
+
+      // ── Bottom CTA ───────────────────────────────────────────
+      document.getElementById('cta').innerHTML = `
+        <h2 style="font-size:1.8rem; margin-bottom:.75rem;">Keep the momentum going</h2>
+        <p style="color:var(--clr-muted); margin-bottom:1.5rem;">
+          Head to your dashboard to update your progress or add a new book.
+        </p>
+        <a href="/dashboard" class="btn" style="font-size:1rem; padding:.75rem 2rem;">
+          My Dashboard
+        </a>
+      `;
+    })();
+  </script>
+
+</body>
+</html>
