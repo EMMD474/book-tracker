@@ -40,6 +40,11 @@ const {
   updateUserProfile,
   deleteUserNote,
   getBookByTitle,
+  verifyAdminApiKey,
+  generateUserReport,
+  getAuditLog,
+  redeemInviteCode,
+  exportUserData,
 } = require('./database');
 
 // ─── Book catalogue ───────────────────────────────────────────────────────────
@@ -671,27 +676,270 @@ app.get('/api/my-book', requireAuth, (req, res) => {
   });
 });
 
+// ── Challenge 12: API Key Bypass + Raw Query Execution ─────────────────────
 app.post('/api/admin/query', (req, res) => {
   const apiKey = req.headers['x-api-key'] || req.body.api_key || '';
   const sql = req.body.query || '';
 
-  const authQuery = `SELECT * FROM users WHERE api_key = '${apiKey}' AND role = 'admin'`;
-
-  const { db } = require('./database');
-  db.get(authQuery, (err, admin) => {
+  verifyAdminApiKey(apiKey, (err, admin) => {
     if (err) {
-      return res.status(500).json({ error: err.message });
+      return res.status(500).json({
+        error: err.message,
+        hint: 'API key validation failed — check the key format'
+      });
     }
     if (!admin) {
-      return res.status(403).json({ error: 'Invalid API key or insufficient privileges' });
+      return res.status(403).json({
+        error: 'Invalid API key or insufficient privileges',
+        note: 'Requires a valid admin API key via X-Api-Key header or api_key body param'
+      });
     }
 
+    const { db } = require('./database');
     db.all(sql, (err2, rows) => {
       if (err2) {
         return res.status(500).json({ error: err2.message, query: sql });
       }
       return res.json({ results: rows, count: rows.length, executed: sql });
     });
+  });
+});
+
+// ── Challenge 10: Second-Order via User Report ─────────────────────────────
+app.get('/api/report', requireAuth, (req, res) => {
+  const userId = req.userId;
+
+  generateUserReport(userId, (err, report) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+        hint: 'Report generation uses your profile bio in a query — have you set your bio?'
+      });
+    }
+    if (!report) {
+      return res.status(404).json({ error: 'Could not generate report' });
+    }
+    return res.json({
+      username: report.user.username,
+      bio: report.user.bio,
+      notes: report.notes,
+      notes_count: report.notes ? report.notes.length : 0
+    });
+  });
+});
+
+// ── Challenge: Audit Log Inspection ────────────────────────────────────────
+app.get('/api/audit', (req, res) => {
+  const action = req.query.action || '';
+
+  if (!action) {
+    return res.json({
+      message: 'Provide an action filter via ?action=',
+      example: '/api/audit?action=SYSTEM',
+      note: 'Filters audit_log entries by action type'
+    });
+  }
+
+  getAuditLog(action, (err, logs) => {
+    if (err) {
+      return res.status(500).json({ error: err.message, filter: action });
+    }
+    return res.json({ logs, count: logs.length, filtered_by: action });
+  });
+});
+
+// ── Challenge 12b: Invite Code Privilege Escalation ────────────────────────
+app.post('/api/invite', requireAuth, (req, res) => {
+  const userId = req.userId;
+  const code = req.body.code || '';
+
+  if (!code) {
+    return res.status(400).json({
+      error: 'code is required',
+      hint: 'Submit an invite code to upgrade your account role'
+    });
+  }
+
+  redeemInviteCode(userId, code, (err, invite) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+        detail: `Failed to validate invite code: ${code}`
+      });
+    }
+    if (!invite) {
+      return res.status(404).json({
+        error: 'Invalid or already-used invite code',
+        submitted: code
+      });
+    }
+    return res.json({
+      success: true,
+      message: `Role upgraded to: ${invite.role}`,
+      invite
+    });
+  });
+});
+
+// ── Challenge: Data Export with Table Name Injection ───────────────────────
+app.get('/api/export', requireAuth, (req, res) => {
+  const userId = req.userId;
+  const table = req.query.table || 'reading_progress';
+
+  exportUserData(userId, table, (err, data) => {
+    if (err) {
+      return res.status(500).json({
+        error: err.message,
+        requested_table: table,
+        hint: 'Specify a table name to export your data from'
+      });
+    }
+    return res.json({
+      table,
+      data,
+      count: data.length,
+      exported_for: `user_id=${userId}`
+    });
+  });
+});
+
+// ── Challenge Listing — hints & scoreboard ─────────────────────────────────
+app.get('/api/challenges', (req, res) => {
+  return res.json({
+    title: 'BookTracker SQL Injection Challenges',
+    version: '2.0',
+    total_challenges: 12,
+    difficulty_legend: {
+      '★☆☆☆☆': 'Easy — basic SQLi concepts',
+      '★★☆☆☆': 'Medium — requires understanding of SQL structure',
+      '★★★☆☆': 'Medium-Hard — multiple techniques combined',
+      '★★★★☆': 'Hard — blind/second-order/hidden table attacks',
+      '★★★★★': 'Expert — multi-step chains and full DB takeover'
+    },
+    challenges: [
+      {
+        id: 1,
+        name: 'Login Bypass',
+        difficulty: '★☆☆☆☆',
+        endpoint: 'POST /login',
+        description: 'Bypass authentication to log in as admin without knowing the password.',
+        hint: 'What happens when you put a single quote in the username field?',
+        flag_table: 'admin_secrets'
+      },
+      {
+        id: 2,
+        name: 'Registration Injection',
+        difficulty: '★★☆☆☆',
+        endpoint: 'POST /register',
+        description: 'Register a user with a crafted username or email that causes second-order SQL injection.',
+        hint: 'Your username is stored and later used in other queries without sanitization.',
+        trigger: 'GET /api/profile/:username'
+      },
+      {
+        id: 3,
+        name: 'UNION Data Exfiltration',
+        difficulty: '★★☆☆☆',
+        endpoint: 'GET /api/search?q=',
+        description: 'Use UNION SELECT to extract data from the admin_secrets table.',
+        hint: 'The search query returns 5 columns. Match them with UNION SELECT.',
+        flag_location: 'admin_secrets.value WHERE key LIKE "FLAG%"'
+      },
+      {
+        id: 4,
+        name: 'Boolean-Based Blind SQLi',
+        difficulty: '★★★★☆',
+        endpoint: 'GET /api/profile/:username',
+        description: 'Extract secret values character-by-character using boolean conditions.',
+        hint: 'If the profile is found → true, if not → false. Use SUBSTR() to test each character.',
+        target: 'admin_secrets WHERE id=8'
+      },
+      {
+        id: 5,
+        name: 'ORDER BY Injection',
+        difficulty: '★★★☆☆',
+        endpoint: 'GET /api/books?sort=&order=',
+        description: 'Inject into the ORDER BY clause to extract data conditionally.',
+        hint: 'Use CASE WHEN ... THEN ... ELSE ... END in the sort parameter.',
+        requires_auth: true
+      },
+      {
+        id: 6,
+        name: 'Stacked Queries',
+        difficulty: '★★★★☆',
+        endpoint: 'POST /api/notes',
+        description: 'The notes endpoint uses db.exec() — which allows stacked (multi-statement) queries.',
+        hint: 'Terminate the INSERT and add a second statement with ;',
+        requires_auth: true,
+        danger: 'Can modify or drop tables!'
+      },
+      {
+        id: 7,
+        name: 'Error-Based Extraction',
+        difficulty: '★★★☆☆',
+        endpoint: 'GET /api/stats?group_by=',
+        description: 'Inject into GROUP BY to trigger informative SQL errors that leak data.',
+        hint: 'Error messages include the full SQL error — use subqueries to extract data.',
+        requires_auth: true
+      },
+      {
+        id: 8,
+        name: 'Pagination Injection',
+        difficulty: '★★☆☆☆',
+        endpoint: 'GET /api/books/page?limit=&offset=',
+        description: 'Inject via the LIMIT/OFFSET parameters to extract data from other tables.',
+        hint: 'SQLite supports UNION after LIMIT in certain contexts. Try injecting after OFFSET.',
+        requires_auth: true
+      },
+      {
+        id: 9,
+        name: 'Hidden Table Discovery',
+        difficulty: '★★★★☆',
+        endpoint: 'GET /api/book/:id',
+        description: 'First discover hidden tables via sqlite_master, then exfiltrate their contents.',
+        hint: 'Start with: 0 UNION SELECT name,type,sql,1,2,3 FROM sqlite_master --',
+        goal: 'Find the vault_credentials table and extract the FLAG_VAULT'
+      },
+      {
+        id: 10,
+        name: 'Second-Order via Profile',
+        difficulty: '★★★★☆',
+        endpoint: 'POST /api/profile → GET /api/report',
+        description: 'Update your bio with a SQL payload, then trigger /api/report which re-uses your bio in a query.',
+        hint: 'Set bio to something like: \' OR 1=1 UNION SELECT * FROM admin_secrets -- ',
+        requires_auth: true,
+        multi_step: true
+      },
+      {
+        id: 11,
+        name: 'Chained Review Injection',
+        difficulty: '★★★★★',
+        endpoint: 'POST /api/reviews → GET /api/reviews/search?q=',
+        description: 'Store a crafted review, then search for it. The search result is re-used in a second raw query.',
+        hint: 'The search endpoint takes your review text and plugs it into another SELECT query.',
+        requires_auth: true,
+        multi_step: true
+      },
+      {
+        id: 12,
+        name: 'Admin API Takeover',
+        difficulty: '★★★★★',
+        endpoint: 'POST /api/admin/query',
+        description: 'Bypass the API key check, then execute arbitrary SQL on the database.',
+        hint: 'The API key is checked via string concatenation — bypass it, then run any SQL you want.',
+        goal: 'Full database access — extract the MASTER_FLAG from admin_secrets'
+      }
+    ],
+    bonus: {
+      name: 'Data Export Injection',
+      endpoint: 'GET /api/export?table=',
+      description: 'The table parameter is injected directly into FROM clause.',
+      hint: 'Try: ?table=users -- or ?table=admin_secrets --'
+    },
+    meta: {
+      tables_to_discover: ['users', 'reading_progress', 'book_reviews', 'user_notes', 'admin_secrets', 'vault_credentials', 'audit_log', 'invite_codes'],
+      total_flags: 9,
+      total_hidden_secrets: 3
+    }
   });
 });
 
