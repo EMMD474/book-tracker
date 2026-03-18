@@ -119,21 +119,21 @@ function initializeDatabase() {
 
     // ─── Seed secrets (multi-layer) ───────────────────────────────────────
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
-            VALUES (1, 'FLAG_1', 'CTF{sql_injection_login_bypass}')`);
+            VALUES (1, 'FLAG_1', 'DevNull{sql_injection_login_bypass}')`);
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
-            VALUES (2, 'FLAG_2', 'CTF{union_select_data_exfil}')`);
+            VALUES (2, 'FLAG_2', 'DevNull{union_select_data_exfil}')`);
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
-            VALUES (3, 'FLAG_3', 'CTF{blind_sqli_boolean_master}')`);
+            VALUES (3, 'FLAG_3', 'DevNull{blind_sqli_boolean_master}')`);
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
-            VALUES (4, 'FLAG_4', 'CTF{stacked_queries_rce_chain}')`);
+            VALUES (4, 'FLAG_4', 'DevNull{stacked_queries_rce_chain}')`);
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
-            VALUES (5, 'FLAG_5', 'CTF{second_order_injection_pro}')`);
+            VALUES (5, 'FLAG_5', 'DevNull{second_order_injection_pro}')`);
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
             VALUES (6, 'DB_BACKUP_KEY', 'xK9#mP2$vL5nQ8wR')`);
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
             VALUES (7, 'JWT_SECRET', 'super-secret-jwt-key-do-not-share')`);
     db.run(`INSERT OR IGNORE INTO admin_secrets (id, key, value)
-            VALUES (8, 'MASTER_FLAG', 'CTF{you_owned_the_entire_database}')`);
+            VALUES (8, 'MASTER_FLAG', 'DevNull{you_owned_the_entire_database}')`);
 
     // ─── Seed vault credentials (hidden table challenge) ──────────────────
     db.run(`INSERT OR IGNORE INTO vault_credentials (id, service, credential)
@@ -141,7 +141,7 @@ function initializeDatabase() {
     db.run(`INSERT OR IGNORE INTO vault_credentials (id, service, credential)
             VALUES (2, 'STRIPE_LIVE', 'sk_live_51ExAmPlEkEy000000')`);
     db.run(`INSERT OR IGNORE INTO vault_credentials (id, service, credential)
-            VALUES (3, 'FLAG_VAULT', 'CTF{hidden_table_recon_pwned}')`);
+            VALUES (3, 'FLAG_VAULT', 'DevNull{hidden_table_recon_pwned}')`);
 
     // ─── Seed invite codes (privilege escalation challenge) ───────────────
     db.run(`INSERT OR IGNORE INTO invite_codes (id, code, role, used)
@@ -149,7 +149,27 @@ function initializeDatabase() {
     db.run(`INSERT OR IGNORE INTO invite_codes (id, code, role, used)
             VALUES (2, 'MOD-INVITE-3K8P', 'moderator', 0)`);
     db.run(`INSERT OR IGNORE INTO invite_codes (id, code, role, used)
-            VALUES (3, 'FLAG_CODE', 'CTF{invite_code_priv_escalation}', 0)`);
+            VALUES (3, 'FLAG_CODE', 'DevNull{invite_code_priv_escalation}', 0)`);
+
+    // Normalize seeded flags for existing databases where INSERT OR IGNORE
+    // would otherwise leave older flag formats in place.
+    db.run(`UPDATE admin_secrets
+            SET value = CASE key
+              WHEN 'FLAG_1' THEN 'DevNull{sql_injection_login_bypass}'
+              WHEN 'FLAG_2' THEN 'DevNull{union_select_data_exfil}'
+              WHEN 'FLAG_3' THEN 'DevNull{blind_sqli_boolean_master}'
+              WHEN 'FLAG_4' THEN 'DevNull{stacked_queries_rce_chain}'
+              WHEN 'FLAG_5' THEN 'DevNull{second_order_injection_pro}'
+              WHEN 'MASTER_FLAG' THEN 'DevNull{you_owned_the_entire_database}'
+              ELSE value
+            END
+            WHERE key IN ('FLAG_1', 'FLAG_2', 'FLAG_3', 'FLAG_4', 'FLAG_5', 'MASTER_FLAG')`);
+    db.run(`UPDATE vault_credentials
+            SET credential = 'DevNull{hidden_table_recon_pwned}'
+            WHERE service = 'FLAG_VAULT'`);
+    db.run(`UPDATE invite_codes
+            SET role = 'DevNull{invite_code_priv_escalation}'
+            WHERE code = 'FLAG_CODE'`);
 
     // ─── Seed reading progress ────────────────────────────────────────────
     db.get(`SELECT id FROM users WHERE username = 'admin'`, (err, row) => {
@@ -187,7 +207,10 @@ function initializeDatabase() {
       db.run(`INSERT OR IGNORE INTO audit_log (id, action, detail)
               VALUES (1, 'SYSTEM_INIT', 'Database initialized. Vault table seeded with 3 credentials.')`);
       db.run(`INSERT OR IGNORE INTO audit_log (id, action, detail)
-              VALUES (2, 'SECRET_NOTE', 'CTF{audit_log_forensics_win}')`);
+              VALUES (2, 'SECRET_NOTE', 'DevNull{audit_log_forensics_win}')`);
+      db.run(`UPDATE audit_log
+              SET detail = 'DevNull{audit_log_forensics_win}'
+              WHERE action = 'SECRET_NOTE'`);
     });
   });
 }

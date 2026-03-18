@@ -12,7 +12,7 @@ The updated UI points players toward several routes, but this path is still the 
 
 ## Objective
 
-Recover the CTF flag from the `admin_secrets` table.
+Recover the training flag from the `admin_secrets` table.
 
 Based on the seeded data documented in the repo, the flag is stored under:
 
@@ -96,7 +96,7 @@ The response format from this endpoint is:
     {
       "id": 1,
       "book_title": "FLAG",
-      "author": "CTF{sql_injection_master_2025}",
+      "author": "DevNull{sql_injection_master_2025}",
       "progress_percentage": "x",
       "user_id": "y"
     }
@@ -113,7 +113,7 @@ The search route maps our UNION output onto the original column names:
 So the flag is:
 
 ```text
-CTF{sql_injection_master_2025}
+DevNull{sql_injection_master_2025}
 ```
 
 ---
@@ -188,5 +188,5 @@ That path is good practice, but it is not the simplest route to the flag.
 ## Final Flag
 
 ```text
-CTF{sql_injection_master_2025}
+DevNull{sql_injection_master_2025}
 ```
