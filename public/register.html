@@ -3,98 +3,119 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Register — BookTracker</title>
+  <title>Create Account | BookTracker SQLi Lab</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-
   <nav class="navbar">
-    <a class="navbar-brand" href="/">📚 BookTracker</a>
+    <a class="navbar-brand" href="/">
+      <span class="navbar-brand-mark">BT</span>
+      <span class="navbar-brand-copy">
+        <strong>BookTracker</strong>
+        <small>SQLi Lab</small>
+      </span>
+    </a>
     <div class="navbar-links">
-      <a href="/">Home</a>
-      <a href="/login.html">Login</a>
+      <a href="/">Lobby</a>
+      <a href="/login.html">Operator Login</a>
     </div>
   </nav>
 
-  <div class="auth-wrapper">
-    <div class="auth-card">
-
-      <div class="auth-logo">✍️</div>
-      <h1>Create Account</h1>
-      <p class="auth-sub">Start tracking your reading journey today</p>
-
-      <div id="banner"></div>
-
-      <form method="POST" action="/register" id="register-form">
-
-        <div class="form-group">
-          <label for="username">Username *</label>
-          <input type="text" id="username" name="username"
-                 placeholder="Choose a username"
-                 autocomplete="username" required>
+  <main class="auth-shell">
+    <div class="auth-layout">
+      <aside class="auth-panel terminal-window">
+        <div class="terminal-header">
+          <span></span><span></span><span></span>
         </div>
-
-        <div class="form-group">
-          <label for="email">Email</label>
-          <input type="email" id="email" name="email"
-                 placeholder="you@example.com"
-                 autocomplete="email">
+        <div class="terminal-body">
+          <p class="terminal-label">registration-notes.txt</p>
+          <h2>Provision New Operator</h2>
+          <p class="auth-panel-copy">
+            Registration gives players a clean account for authenticated labs and introduces the idea that stored input can matter later.
+          </p>
+          <ul class="auth-list">
+            <li>Useful for beginner players who want a fresh identity before touching notes, reviews, and profile routes.</li>
+            <li>Helpful for intermediate players testing how saved input behaves when reused elsewhere.</li>
+            <li>Keep usernames memorable so you can trace them through the app and APIs.</li>
+          </ul>
+          <div class="auth-meta">
+            <span class="tag">Primary Route</span>
+            <code>POST /register</code>
+          </div>
         </div>
+      </aside>
 
-        <div class="form-group">
-          <label for="password">Password *</label>
-          <input type="password" id="password" name="password"
-                 placeholder="Choose a password"
-                 autocomplete="new-password" required>
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-logo">SYS</div>
+          <p class="auth-kicker">New Session Setup</p>
+          <h1>Create Operator Account</h1>
+          <p class="auth-sub">Spin up a user so you can reach the authenticated challenge surfaces and track your test data.</p>
+
+          <div id="banner"></div>
+
+          <form method="POST" action="/register" id="register-form">
+            <div class="form-group">
+              <label for="username">Username *</label>
+              <input type="text" id="username" name="username" placeholder="choose an operator name" autocomplete="username" required>
+            </div>
+
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="optional contact field" autocomplete="email">
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password *</label>
+              <input type="password" id="password" name="password" placeholder="set a password" autocomplete="new-password" required>
+            </div>
+
+            <div class="form-group">
+              <label for="confirm_password">Confirm Password *</label>
+              <input type="password" id="confirm_password" name="confirm_password" placeholder="repeat password" autocomplete="new-password" required>
+            </div>
+
+            <button type="submit" class="btn btn-full">Create Account</button>
+
+            <div class="divider">or</div>
+
+            <div class="form-footer">
+              <span>Already provisioned?</span>
+              <a href="/login.html">Log in</a>
+            </div>
+          </form>
         </div>
-
-        <div class="form-group">
-          <label for="confirm_password">Confirm Password *</label>
-          <input type="password" id="confirm_password" name="confirm_password"
-                 placeholder="Repeat your password"
-                 autocomplete="new-password" required>
-        </div>
-
-        <button type="submit" class="btn btn-full">Create Account</button>
-
-        <div class="divider">or</div>
-
-        <div class="form-footer">
-          <span style="font-size:.85rem; color:var(--clr-muted)">Already have an account?</span>
-          <a href="/login.html">Sign in →</a>
-        </div>
-
-      </form>
-
+      </div>
     </div>
-  </div>
+  </main>
 
   <footer class="footer">
-    <p>BookTracker &copy; 2025</p>
+    <p>BookTracker SQLi Lab &copy; 2026 · intentionally vulnerable · local training use only</p>
   </footer>
 
   <script>
     (function () {
       const params = new URLSearchParams(window.location.search);
-      const error  = params.get('error');
+      const error = params.get('error');
       const banner = document.getElementById('banner');
+
       if (error === 'missing') {
-        banner.innerHTML = '<div class="alert alert-danger">Username and password are required.</div>';
+        banner.innerHTML = '<div class="alert alert-danger">Username and password are required to provision an account.</div>';
       }
     })();
 
     document.getElementById('register-form').addEventListener('submit', function (e) {
-      const pw  = document.getElementById('password').value;
+      const pw = document.getElementById('password').value;
       const cpw = document.getElementById('confirm_password').value;
+
       if (pw !== cpw) {
         e.preventDefault();
         document.getElementById('banner').innerHTML =
-          '<div class="alert alert-danger">Passwords do not match.</div>';
+          '<div class="alert alert-danger">The confirmation password does not match.</div>';
       }
     });
   </script>
-
 </body>
 </html>

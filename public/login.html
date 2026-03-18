@@ -3,91 +3,115 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login — BookTracker</title>
+  <title>Operator Login | BookTracker SQLi Lab</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-
   <nav class="navbar">
-    <a class="navbar-brand" href="/">📚 BookTracker</a>
+    <a class="navbar-brand" href="/">
+      <span class="navbar-brand-mark">BT</span>
+      <span class="navbar-brand-copy">
+        <strong>BookTracker</strong>
+        <small>SQLi Lab</small>
+      </span>
+    </a>
     <div class="navbar-links">
-      <a href="/">Home</a>
-      <a href="/register.html">Register</a>
+      <a href="/">Lobby</a>
+      <a href="/register.html">Create Account</a>
     </div>
   </nav>
 
-  <div class="auth-wrapper">
-    <div class="auth-card">
-
-      <div class="auth-logo">📚</div>
-      <h1>Welcome back</h1>
-      <p class="auth-sub">Sign in to your BookTracker account</p>
-
-      <div id="banner"></div>
-
-      <form method="POST" action="/login" id="login-form">
-        <input type="hidden" name="_returnTo" id="return-to-field" value="">
-
-        <div class="form-group">
-          <label for="username">Username</label>
-          <input type="text" id="username" name="username"
-                 placeholder="Enter your username"
-                 autocomplete="username" required>
+  <main class="auth-shell">
+    <div class="auth-layout">
+      <aside class="auth-panel terminal-window">
+        <div class="terminal-header">
+          <span></span><span></span><span></span>
         </div>
-
-        <div class="form-group">
-          <label for="password">Password</label>
-          <input type="password" id="password" name="password"
-                 placeholder="Enter your password"
-                 autocomplete="current-password" required>
+        <div class="terminal-body">
+          <p class="terminal-label">access-notes.txt</p>
+          <h2>Operator Access</h2>
+          <p class="auth-panel-copy">
+            Use this screen for normal authentication, session setup, or testing how the login query behaves when input stops being normal.
+          </p>
+          <ul class="auth-list">
+            <li>Good first stop for beginners learning quote handling and comment truncation.</li>
+            <li>Successful login unlocks the dashboard, reader, and authenticated API routes.</li>
+            <li>Keep testing local only. The app is intentionally unsafe by design.</li>
+          </ul>
+          <div class="auth-meta">
+            <span class="tag">Primary Route</span>
+            <code>POST /login</code>
+          </div>
         </div>
+      </aside>
 
-        <button type="submit" class="btn btn-full">Sign In</button>
+      <div class="auth-wrapper">
+        <div class="auth-card">
+          <div class="auth-logo">&gt;_</div>
+          <p class="auth-kicker">Session Entry</p>
+          <h1>Access Training Console</h1>
+          <p class="auth-sub">Authenticate with an account or probe the login flow as part of the CTF.</p>
 
-        <div class="divider">or</div>
+          <div id="banner"></div>
 
-        <div class="form-footer">
-          <span style="font-size:.85rem; color:var(--clr-muted)">Don't have an account?</span>
-          <a href="/register.html">Create one →</a>
+          <form method="POST" action="/login" id="login-form">
+            <input type="hidden" name="_returnTo" id="return-to-field" value="">
+
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input type="text" id="username" name="username" placeholder="operator name" autocomplete="username" required>
+            </div>
+
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" placeholder="password or test input" autocomplete="current-password" required>
+            </div>
+
+            <button type="submit" class="btn btn-full">Open Session</button>
+
+            <div class="divider">or</div>
+
+            <div class="form-footer">
+              <span>No account yet?</span>
+              <a href="/register.html">Create one</a>
+            </div>
+          </form>
         </div>
-      </form>
-
+      </div>
     </div>
-  </div>
+  </main>
 
   <footer class="footer">
-    <p>BookTracker &copy; 2025</p>
+    <p>BookTracker SQLi Lab &copy; 2026 · intentionally vulnerable · local training use only</p>
   </footer>
 
   <script>
     (function () {
-      const params   = new URLSearchParams(window.location.search);
-      const error    = params.get('error');
-      const reg      = params.get('registered');
-      const logout   = params.get('logout');
+      const params = new URLSearchParams(window.location.search);
+      const error = params.get('error');
+      const reg = params.get('registered');
+      const logout = params.get('logout');
       const returnTo = params.get('returnTo');
-      const banner   = document.getElementById('banner');
+      const banner = document.getElementById('banner');
 
-      // Pass the return URL through the form so POST /login can redirect back
       if (returnTo) {
         document.getElementById('return-to-field').value = decodeURIComponent(returnTo);
       }
 
       if (error === 'invalid') {
-        banner.innerHTML = '<div class="alert alert-danger">Invalid username or password. Try again.</div>';
+        banner.innerHTML = '<div class="alert alert-danger">Access denied. The supplied credentials did not resolve to a valid row.</div>';
       } else if (error === 'missing') {
-        banner.innerHTML = '<div class="alert alert-danger">Please fill in both fields.</div>';
+        banner.innerHTML = '<div class="alert alert-danger">Username and password are both required.</div>';
       } else if (reg === '1') {
-        banner.innerHTML = '<div class="alert alert-success">Account created! You can now log in.</div>';
+        banner.innerHTML = '<div class="alert alert-success">Account created. You can log in and move into the authenticated challenge routes.</div>';
       } else if (logout === '1') {
-        banner.innerHTML = '<div class="alert alert-success">You have been logged out.</div>';
+        banner.innerHTML = '<div class="alert alert-success">Session closed.</div>';
       } else if (returnTo) {
-        banner.innerHTML = '<div class="alert alert-warning">Sign in to continue.</div>';
+        banner.innerHTML = '<div class="alert alert-warning">Authentication required before continuing to that route.</div>';
       }
     })();
   </script>
-
 </body>
 </html>

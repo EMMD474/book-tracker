@@ -1,269 +1,291 @@
 <!DOCTYPE html>
 <!--
-  index.html — BookTracker landing page
-  ⚠️  EDUCATIONAL / SECURITY TRAINING USE ONLY ⚠️
-  Part of an intentionally vulnerable demo application.
-  Do NOT deploy to a public server.
+  index.html — BookTracker SQL Injection Lab landing page
+  Educational use only. Intentionally vulnerable by design.
 -->
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BookTracker — Track Your Reading Journey</title>
+  <title>BookTracker SQLi Lab</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
-
-  <!-- ── Navigation ─────────────────────────────────────────── -->
   <nav class="navbar">
-    <a class="navbar-brand" href="/">📚 BookTracker</a>
-    <!-- Links are swapped by the auth-nav script below -->
+    <a class="navbar-brand" href="/">
+      <span class="navbar-brand-mark">BT</span>
+      <span class="navbar-brand-copy">
+        <strong>BookTracker</strong>
+        <small>SQLi Lab</small>
+      </span>
+    </a>
     <div class="navbar-links" id="nav-links">
-      <a href="/">Home</a>
-      <a href="#books">Browse</a>
-      <a href="/register.html">Sign Up</a>
-      <a href="/login.html" class="btn btn-small">Login</a>
+      <a href="/">Lobby</a>
+      <a href="#targets">Targets</a>
+      <a href="#path">Path</a>
+      <a href="/register.html">Create Account</a>
+      <a href="/login.html" class="btn btn-small">Operator Login</a>
     </div>
   </nav>
 
   <main class="container">
-
-    <!-- ── Hero ───────────────────────────────────────────────── -->
     <section class="hero" id="hero">
-      <h1>Your Personal<br>Reading Companion</h1>
-      <p>
-        Keep track of every book you read, monitor your progress,
-        and build a reading habit that sticks.
-      </p>
-      <div class="hero-cta">
-        <a href="/register.html" class="btn">Get Started Free</a>
-        <a href="/login.html"    class="btn btn-outline">Sign In</a>
+      <div class="hero-grid">
+        <div class="hero-copy">
+          <span class="badge">Beginner to Intermediate SQL Injection CTF</span>
+          <h1>Break the queries, not the learning curve.</h1>
+          <p class="hero-lead">
+            BookTracker looks like a harmless reading app, but the backend is a live SQL injection training range.
+            Start with obvious auth flaws, then pivot into search, stored input, pagination, and admin endpoints.
+          </p>
+          <div class="hero-actions">
+            <a href="/register.html" class="btn">Enter the Lab</a>
+            <a href="#targets" class="btn btn-outline">View Targets</a>
+          </div>
+          <div class="hero-stats">
+            <div class="hero-stat">
+              <strong>12</strong>
+              <span>Primary challenge routes</span>
+            </div>
+            <div class="hero-stat">
+              <strong>3</strong>
+              <span>Skill bands from warm-up to chained exploits</span>
+            </div>
+            <div class="hero-stat">
+              <strong>Local</strong>
+              <span>Safe sandbox for payload testing</span>
+            </div>
+          </div>
+        </div>
+
+        <aside class="terminal-window hero-panel">
+          <div class="terminal-header">
+            <span></span><span></span><span></span>
+          </div>
+          <div class="terminal-body">
+            <p class="terminal-label">mission.log</p>
+            <div class="terminal-line">
+              <span class="terminal-prompt">$</span>
+              <span class="terminal-copy">surface scan initiated</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">&gt;</span>
+              <span class="terminal-copy">POST /login ........ auth bypass warm-up</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">&gt;</span>
+              <span class="terminal-copy">GET /api/search?q= . UNION extraction</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">&gt;</span>
+              <span class="terminal-copy">POST /api/profile .. stored-input staging</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">&gt;</span>
+              <span class="terminal-copy">POST /api/admin/query privilege abuse</span>
+            </div>
+            <div class="terminal-line">
+              <span class="terminal-prompt">$</span>
+              <span class="terminal-copy">objective: enumerate, exploit, extract flag(s)</span>
+            </div>
+          </div>
+        </aside>
       </div>
     </section>
 
-    <!-- ── Feature highlights ─────────────────────────────────── -->
-    <div class="features">
-      <div class="feature-card">
-        <div class="feature-icon">📖</div>
-        <h3>Track Progress</h3>
-        <p>Log exactly how far you've gotten through any book with a simple percentage slider.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">📊</div>
-        <h3>Reading Stats</h3>
-        <p>See your reading velocity and completion rates at a glance on your personal dashboard.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🔖</div>
-        <h3>Book Library</h3>
-        <p>Maintain a personal library of every title you've started, finished, or want to read.</p>
-      </div>
-      <div class="feature-card">
-        <div class="feature-icon">🎯</div>
-        <h3>Set Goals</h3>
-        <p>Challenge yourself with yearly reading goals and track how close you are to hitting them.</p>
-      </div>
-    </div>
-
-    <!-- ── Featured books grid ────────────────────────────────── -->
-    <h2 class="section-title">Featured Books</h2>
-
-    <div class="book-grid" id="books">
-
-      <!-- Book 1 -->
-      <a href="/read?title=1984" class="book-card-link">
-        <div class="book-card">
-          <div class="book-cover-wrap">
-            <img
-              class="book-cover"
-              src="https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?w=300&q=80"
-              alt="1984 cover"
-              loading="lazy"
-            >
-          </div>
-          <div class="book-info">
-            <h3>1984</h3>
-            <span class="book-author">George Orwell</span>
-            <span class="book-genre">Dystopian Fiction · 1949</span>
-            <p class="book-desc">
-              Winston Smith navigates a totalitarian society ruled by the ever-watching Big Brother.
-              A haunting portrait of surveillance and the erasure of truth.
-            </p>
-            <div class="book-rating">
-              <span class="stars">★★★★★</span>
-              <span style="color:var(--clr-muted)">4.8</span>
-            </div>
-            <span class="book-cta">Login to read →</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- Book 2 -->
-      <a href="/read?title=dune" class="book-card-link">
-        <div class="book-card">
-          <div class="book-cover-wrap">
-            <img
-              class="book-cover"
-              src="https://images.unsplash.com/photo-1512820790803-83ca734da794?w=300&q=80"
-              alt="Dune cover"
-              loading="lazy"
-            >
-          </div>
-          <div class="book-info">
-            <h3>Dune</h3>
-            <span class="book-author">Frank Herbert</span>
-            <span class="book-genre">Science Fiction · 1965</span>
-            <p class="book-desc">
-              On the desert planet Arrakis, young Paul Atreides discovers his destiny
-              while navigating political intrigue and religious prophecy.
-            </p>
-            <div class="book-rating">
-              <span class="stars">★★★★★</span>
-              <span style="color:var(--clr-muted)">4.7</span>
-            </div>
-            <span class="book-cta">Login to read →</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- Book 3 -->
-      <a href="/read?title=the-hobbit" class="book-card-link">
-        <div class="book-card">
-          <div class="book-cover-wrap">
-            <img
-              class="book-cover"
-              src="https://images.unsplash.com/photo-1481627834876-b7833e8f5570?w=300&q=80"
-              alt="The Hobbit cover"
-              loading="lazy"
-            >
-          </div>
-          <div class="book-info">
-            <h3>The Hobbit</h3>
-            <span class="book-author">J.R.R. Tolkien</span>
-            <span class="book-genre">Fantasy · 1937</span>
-            <p class="book-desc">
-              Bilbo Baggins, a comfort-loving hobbit, is swept into an epic quest
-              across Middle-earth with a company of thirteen dwarves and a wizard.
-            </p>
-            <div class="book-rating">
-              <span class="stars">★★★★★</span>
-              <span style="color:var(--clr-muted)">4.9</span>
-            </div>
-            <span class="book-cta">Login to read →</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- Book 4 -->
-      <a href="/read?title=pride-and-prejudice" class="book-card-link">
-        <div class="book-card">
-          <div class="book-cover-wrap">
-            <img
-              class="book-cover"
-              src="https://images.unsplash.com/photo-1495640388908-05fa85288e61?w=300&q=80"
-              alt="Pride and Prejudice cover"
-              loading="lazy"
-            >
-          </div>
-          <div class="book-info">
-            <h3>Pride and Prejudice</h3>
-            <span class="book-author">Jane Austen</span>
-            <span class="book-genre">Classic Romance · 1813</span>
-            <p class="book-desc">
-              The witty Elizabeth Bennet navigates the rigid social hierarchy of
-              Regency-era England while falling for the proud Mr. Darcy.
-            </p>
-            <div class="book-rating">
-              <span class="stars">★★★★½</span>
-              <span style="color:var(--clr-muted)">4.6</span>
-            </div>
-            <span class="book-cta">Login to read →</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- Book 5 -->
-      <a href="/read?title=great-gatsby" class="book-card-link">
-        <div class="book-card">
-          <div class="book-cover-wrap">
-            <img
-              class="book-cover"
-              src="https://images.unsplash.com/photo-1516979187457-637abb4f9353?w=300&q=80"
-              alt="The Great Gatsby cover"
-              loading="lazy"
-            >
-          </div>
-          <div class="book-info">
-            <h3>The Great Gatsby</h3>
-            <span class="book-author">F. Scott Fitzgerald</span>
-            <span class="book-genre">Literary Fiction · 1925</span>
-            <p class="book-desc">
-              Through the eyes of Nick Carraway, we explore the mysterious world of
-              Jay Gatsby and the hollow glitter of the American Dream.
-            </p>
-            <div class="book-rating">
-              <span class="stars">★★★★</span>
-              <span style="color:var(--clr-muted)">4.3</span>
-            </div>
-            <span class="book-cta">Login to read →</span>
-          </div>
-        </div>
-      </a>
-
-      <!-- Book 6 -->
-      <a href="/read?title=brave-new-world" class="book-card-link">
-        <div class="book-card">
-          <div class="book-cover-wrap">
-            <img
-              class="book-cover"
-              src="https://images.unsplash.com/photo-1606112219348-204d7d8b94ee?w=300&q=80"
-              alt="Brave New World cover"
-              loading="lazy"
-            >
-          </div>
-          <div class="book-info">
-            <h3>Brave New World</h3>
-            <span class="book-author">Aldous Huxley</span>
-            <span class="book-genre">Dystopian Fiction · 1932</span>
-            <p class="book-desc">
-              A World State where citizens are engineered and conditioned for
-              social stability — until a "Savage" challenges the system from within.
-            </p>
-            <div class="book-rating">
-              <span class="stars">★★★★</span>
-              <span style="color:var(--clr-muted)">4.5</span>
-            </div>
-            <span class="book-cta">Login to read →</span>
-          </div>
-        </div>
-      </a>
-
-    </div><!-- /.book-grid -->
-
-    <!-- ── Call to action ─────────────────────────────────────── -->
-    <section id="cta" style="text-align:center; padding: 3rem 1rem;">
-      <h2 style="font-size:1.8rem; margin-bottom:.75rem;">Ready to start tracking?</h2>
-      <p style="color:var(--clr-muted); margin-bottom:1.5rem;">
-        Create a free account and add your first book in seconds.
-      </p>
-      <a href="/register.html" class="btn" style="font-size:1rem; padding:.75rem 2rem;">
-        Create Account
-      </a>
+    <section class="features mission-grid">
+      <article class="feature-card brief-card">
+        <div class="feature-icon">01</div>
+        <h3>Start Simple</h3>
+        <p>Use the form flows first. Login, registration, and search give beginners fast feedback and visible breakage.</p>
+      </article>
+      <article class="feature-card brief-card">
+        <div class="feature-icon">02</div>
+        <h3>Escalate Gradually</h3>
+        <p>Once you have the basics, move into stored payloads, blind inference, sorting abuse, and stacked statements.</p>
+      </article>
+      <article class="feature-card brief-card">
+        <div class="feature-icon">03</div>
+        <h3>Think Like an Operator</h3>
+        <p>Every page is themed like a product, but every input is there to teach reconnaissance, payload crafting, and chaining.</p>
+      </article>
     </section>
 
+    <section class="console-section">
+      <div class="section-heading">
+        <span class="section-kicker">Guidance</span>
+        <h2 class="section-title">Suggested Path For New Players</h2>
+      </div>
+      <div class="path-grid" id="path">
+        <article class="path-card">
+          <span class="path-level">Warm-Up</span>
+          <h3>Learn the shape of broken queries</h3>
+          <p>Focus on login, registration, and search. You should be able to see how quotes, comments, and UNION logic affect the response.</p>
+        </article>
+        <article class="path-card">
+          <span class="path-level">Intermediate</span>
+          <h3>Move into authenticated surfaces</h3>
+          <p>Use your account to explore notes, profile updates, sorting, pagination, and book lookups where payloads hit less obvious SQL fragments.</p>
+        </article>
+        <article class="path-card">
+          <span class="path-level">Chain</span>
+          <h3>Store, trigger, and pivot</h3>
+          <p>Practice second-order injection by planting input in one endpoint and detonating it through reporting, review search, or admin-only flows.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="targets-section" id="targets">
+      <div class="section-heading">
+        <span class="section-kicker">Challenge Targets</span>
+        <h2 class="section-title">Pick a Book, Map the Route, Probe the SQL</h2>
+      </div>
+
+      <div class="book-grid">
+        <a href="/read?title=1984" class="book-card-link">
+          <article class="book-card">
+            <div class="book-visual cover-1984">
+              <span class="book-index">01</span>
+              <span class="tag">Easy</span>
+            </div>
+            <div class="book-info">
+              <h3>1984</h3>
+              <span class="book-author">George Orwell</span>
+              <span class="book-genre">Auth Bypass · Login Surface</span>
+              <p class="book-desc">Use this as your first target while learning how a single quote can rewrite the meaning of a login check.</p>
+              <div class="book-tags">
+                <span class="tag">POST /login</span>
+                <span class="tag">Comments</span>
+                <span class="tag">Tautologies</span>
+              </div>
+              <span class="book-cta" data-guest-cta="Access target" data-user-cta="Open reader">Access target</span>
+            </div>
+          </article>
+        </a>
+
+        <a href="/read?title=dune" class="book-card-link">
+          <article class="book-card">
+            <div class="book-visual cover-dune">
+              <span class="book-index">02</span>
+              <span class="tag">Easy+</span>
+            </div>
+            <div class="book-info">
+              <h3>Dune</h3>
+              <span class="book-author">Frank Herbert</span>
+              <span class="book-genre">Search Surface · UNION Practice</span>
+              <p class="book-desc">A clean target for learning column counting, UNION alignment, and data extraction from hidden tables.</p>
+              <div class="book-tags">
+                <span class="tag">GET /api/search</span>
+                <span class="tag">UNION</span>
+                <span class="tag">Enumeration</span>
+              </div>
+              <span class="book-cta" data-guest-cta="Inspect route" data-user-cta="Open reader">Inspect route</span>
+            </div>
+          </article>
+        </a>
+
+        <a href="/read?title=the-hobbit" class="book-card-link">
+          <article class="book-card">
+            <div class="book-visual cover-hobbit">
+              <span class="book-index">03</span>
+              <span class="tag">Intermediate</span>
+            </div>
+            <div class="book-info">
+              <h3>The Hobbit</h3>
+              <span class="book-author">J.R.R. Tolkien</span>
+              <span class="book-genre">Stored Input · Review Chain</span>
+              <p class="book-desc">Ideal for players starting to understand that input can be harmless on write and dangerous later on read.</p>
+              <div class="book-tags">
+                <span class="tag">POST /api/reviews</span>
+                <span class="tag">GET /api/reviews/search</span>
+              </div>
+              <span class="book-cta" data-guest-cta="Study flow" data-user-cta="Open reader">Study flow</span>
+            </div>
+          </article>
+        </a>
+
+        <a href="/read?title=pride-and-prejudice" class="book-card-link">
+          <article class="book-card">
+            <div class="book-visual cover-pride">
+              <span class="book-index">04</span>
+              <span class="tag">Intermediate</span>
+            </div>
+            <div class="book-info">
+              <h3>Pride and Prejudice</h3>
+              <span class="book-author">Jane Austen</span>
+              <span class="book-genre">Sorting and Reporting Abuse</span>
+              <p class="book-desc">This route set rewards players who can think beyond WHERE clauses and inject into ORDER BY or report builders.</p>
+              <div class="book-tags">
+                <span class="tag">GET /api/books</span>
+                <span class="tag">GET /api/report</span>
+              </div>
+              <span class="book-cta" data-guest-cta="Map target" data-user-cta="Open reader">Map target</span>
+            </div>
+          </article>
+        </a>
+
+        <a href="/read?title=great-gatsby" class="book-card-link">
+          <article class="book-card">
+            <div class="book-visual cover-gatsby">
+              <span class="book-index">05</span>
+              <span class="tag">Intermediate+</span>
+            </div>
+            <div class="book-info">
+              <h3>The Great Gatsby</h3>
+              <span class="book-author">F. Scott Fitzgerald</span>
+              <span class="book-genre">Blind SQLi and Schema Discovery</span>
+              <p class="book-desc">Push into inference attacks, schema hunting, and payloads where output is partial or indirect.</p>
+              <div class="book-tags">
+                <span class="tag">GET /api/profile/:username</span>
+                <span class="tag">GET /api/book/:id</span>
+              </div>
+              <span class="book-cta" data-guest-cta="Trace endpoint" data-user-cta="Open reader">Trace endpoint</span>
+            </div>
+          </article>
+        </a>
+
+        <a href="/read?title=brave-new-world" class="book-card-link">
+          <article class="book-card">
+            <div class="book-visual cover-brave">
+              <span class="book-index">06</span>
+              <span class="tag">Advanced Track</span>
+            </div>
+            <div class="book-info">
+              <h3>Brave New World</h3>
+              <span class="book-author">Aldous Huxley</span>
+              <span class="book-genre">Privilege Abuse · Admin Query Console</span>
+              <p class="book-desc">Treat this as the capstone. Chain account access, API key bypass, and raw query execution into full compromise.</p>
+              <div class="book-tags">
+                <span class="tag">POST /api/admin/query</span>
+                <span class="tag">GET /api/export</span>
+              </div>
+              <span class="book-cta" data-guest-cta="Review final stage" data-user-cta="Open reader">Review final stage</span>
+            </div>
+          </article>
+        </a>
+      </div>
+    </section>
+
+    <section class="cta-panel" id="cta">
+      <div>
+        <span class="section-kicker">Ready</span>
+        <h2>Spin up an account and start breaking the app.</h2>
+        <p>Use the polished UI as your cover. The real objective is to understand how each form and API route composes unsafe SQL underneath.</p>
+      </div>
+      <div class="hero-actions">
+        <a href="/register.html" class="btn">Create Operator Account</a>
+        <a href="/login.html" class="btn btn-outline">Use Existing Access</a>
+      </div>
+    </section>
   </main>
 
-  <!-- ── Footer ─────────────────────────────────────────────── -->
   <footer class="footer">
-    <p>BookTracker &copy; 2025 &mdash; for educational / security-training use only &mdash;
-       <strong style="color:#ffbc43">⚠️ Intentionally Vulnerable App</strong></p>
+    <p>BookTracker SQLi Lab &copy; 2026 · intentionally vulnerable · local training use only</p>
   </footer>
 
   <script>
-    // Read auth cookies (httpOnly is false — intentional in this demo)
-    // and update the navbar + book card labels to reflect login state.
     (function () {
       function getCookie(name) {
         const m = document.cookie.match('(?:^|; )' + name + '=([^;]*)');
@@ -271,44 +293,90 @@
       }
 
       const username = getCookie('username');
-      if (!username) return; // guest — leave page as-is
+      if (!username) return;
 
-      // ── Navbar ──────────────────────────────────────────────
       document.getElementById('nav-links').innerHTML = `
-        <a href="/">Home</a>
-        <a href="#books">Browse</a>
-        <a href="/dashboard">Dashboard</a>
-        <span class="nav-greeting">Hi, <strong>${username}</strong></span>
+        <a href="/">Lobby</a>
+        <a href="#targets">Targets</a>
+        <a href="/dashboard">Console</a>
+        <span class="nav-greeting">Operator <strong>${username}</strong></span>
         <a href="/logout" class="btn btn-small btn-outline">Logout</a>
       `;
 
-      // ── Hero ─────────────────────────────────────────────────
       document.getElementById('hero').innerHTML = `
-        <h1>Welcome back,<br>${username}!</h1>
-        <p>Pick up where you left off or dive into something new.</p>
-        <div class="hero-cta">
-          <a href="/dashboard" class="btn">Go to Dashboard</a>
-          <a href="#books"     class="btn btn-outline">Browse Books</a>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <span class="badge">Authenticated Session Active</span>
+            <h1>Welcome back, ${username}.</h1>
+            <p class="hero-lead">
+              Your workspace is ready. Jump into the dashboard to manage tracked books, then pivot into the vulnerable APIs when you need more signal.
+            </p>
+            <div class="hero-actions">
+              <a href="/dashboard" class="btn">Open Console</a>
+              <a href="#targets" class="btn btn-outline">Return to Targets</a>
+            </div>
+            <div class="hero-stats">
+              <div class="hero-stat">
+                <strong>Live</strong>
+                <span>Cookie-backed session</span>
+              </div>
+              <div class="hero-stat">
+                <strong>UI</strong>
+                <span>Reader and tracker ready</span>
+              </div>
+              <div class="hero-stat">
+                <strong>API</strong>
+                <span>Authenticated routes unlocked</span>
+              </div>
+            </div>
+          </div>
+          <aside class="terminal-window hero-panel">
+            <div class="terminal-header">
+              <span></span><span></span><span></span>
+            </div>
+            <div class="terminal-body">
+              <p class="terminal-label">session.status</p>
+              <div class="terminal-line">
+                <span class="terminal-prompt">$</span>
+                <span class="terminal-copy">operator=${username}</span>
+              </div>
+              <div class="terminal-line">
+                <span class="terminal-prompt">&gt;</span>
+                <span class="terminal-copy">/dashboard ............ workspace control</span>
+              </div>
+              <div class="terminal-line">
+                <span class="terminal-prompt">&gt;</span>
+                <span class="terminal-copy">/api/books ............ sorting target</span>
+              </div>
+              <div class="terminal-line">
+                <span class="terminal-prompt">&gt;</span>
+                <span class="terminal-copy">/api/profile .......... second-order staging</span>
+              </div>
+              <div class="terminal-line">
+                <span class="terminal-prompt">&gt;</span>
+                <span class="terminal-copy">/api/notes ............ stacked statements</span>
+              </div>
+            </div>
+          </aside>
         </div>
       `;
 
-      // ── Book card CTAs ───────────────────────────────────────
       document.querySelectorAll('.book-cta').forEach(function (el) {
-        el.textContent = 'Read Now →';
+        el.textContent = el.dataset.userCta || 'Open target';
       });
 
-      // ── Bottom CTA ───────────────────────────────────────────
       document.getElementById('cta').innerHTML = `
-        <h2 style="font-size:1.8rem; margin-bottom:.75rem;">Keep the momentum going</h2>
-        <p style="color:var(--clr-muted); margin-bottom:1.5rem;">
-          Head to your dashboard to update your progress or add a new book.
-        </p>
-        <a href="/dashboard" class="btn" style="font-size:1rem; padding:.75rem 2rem;">
-          My Dashboard
-        </a>
+        <div>
+          <span class="section-kicker">Session Active</span>
+          <h2>Keep the chain moving.</h2>
+          <p>Use the dashboard for your tracked titles, then branch into search, notes, profile, and admin endpoints when you want deeper SQLi surfaces.</p>
+        </div>
+        <div class="hero-actions">
+          <a href="/dashboard" class="btn">Go to Console</a>
+          <a href="/logout" class="btn btn-outline">End Session</a>
+        </div>
       `;
     })();
   </script>
-
 </body>
 </html>

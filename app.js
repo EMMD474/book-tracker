@@ -89,34 +89,41 @@ function requireAuth(req, res, next) {
 
 function htmlPage(title, body, username = null) {
   const navRight = username
-    ? `<a href="/dashboard">My Books</a>
-      <span class="nav-greeting">Hi, <strong>${username}</strong></span>
+    ? `<a href="/dashboard">Console</a>
+      <span class="nav-greeting">Operator <strong>${username}</strong></span>
       <a href="/logout" class="btn btn-small btn-outline">Logout</a>`
-    : `<a href="/login.html" class="btn btn-small">Login</a>`;
+    : `<a href="/login.html" class="btn btn-small">Operator Login</a>`;
 
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>${title} — BookTracker</title>
+  <title>${title} | BookTracker SQLi Lab</title>
   <link rel="stylesheet" href="/styles.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 </head>
 <body>
   <nav class="navbar">
-    <a class="navbar-brand" href="/">📚 BookTracker</a>
+    <a class="navbar-brand" href="/">
+      <span class="navbar-brand-mark">BT</span>
+      <span class="navbar-brand-copy">
+        <strong>BookTracker</strong>
+        <small>SQLi Lab</small>
+      </span>
+    </a>
     <div class="navbar-links">
-      <a href="/">Home</a>
+      <a href="/">Lobby</a>
       ${navRight}
     </div>
   </nav>
   <main class="container">
+    <div class="vuln-banner">Training sandbox only. The interface is cleaner now, but the SQL behind it is still intentionally unsafe.</div>
     ${body}
   </main>
   <footer class="footer">
-    <p>BookTracker &copy; 2025</p>
+    <p>BookTracker SQLi Lab &copy; 2026 · intentionally vulnerable · beginner-to-intermediate practice range</p>
   </footer>
 </body>
 </html>`;
@@ -191,11 +198,11 @@ app.get('/dashboard', requireAuth, (req, res) => {
       <div class="stats-bar">
         <div class="stat-card">
           <span class="stat-number">${totalBooks}</span>
-          <span class="stat-label">Books Tracked</span>
+          <span class="stat-label">Tracked Titles</span>
         </div>
         <div class="stat-card">
           <span class="stat-number">${inProgress}</span>
-          <span class="stat-label">In Progress</span>
+          <span class="stat-label">Active Reads</span>
         </div>
         <div class="stat-card">
           <span class="stat-number">${completedBooks}</span>
@@ -203,7 +210,7 @@ app.get('/dashboard', requireAuth, (req, res) => {
         </div>
         <div class="stat-card">
           <span class="stat-number">${avgProgress}%</span>
-          <span class="stat-label">Avg Progress</span>
+          <span class="stat-label">Coverage</span>
         </div>
       </div>
     `;
@@ -244,18 +251,18 @@ app.get('/dashboard', requireAuth, (req, res) => {
             </tr>
           `;
       }).join('')
-      : `<tr><td colspan="3" class="empty-state">No books yet — click any book on the home page to start reading!</td></tr>`;
+      : `<tr><td colspan="3" class="empty-state">No tracked titles yet. Open any book from the lobby to seed your workspace.</td></tr>`;
 
     const body = `
       <div class="dashboard-header">
-        <h1>Welcome back, ${username}!</h1>
-        <p class="subtitle">Track your reading journey</p>
+        <h1>Operator Console: ${username}</h1>
+        <p class="subtitle">Track seeded books, capture progress, and pivot into the vulnerable API surface as you work through the lab.</p>
       </div>
 
       ${statsBar}
 
       <section class="card">
-        <h2>Your Reading List</h2>
+        <h2>Tracked Targets</h2>
         <div class="table-wrapper">
           <table class="data-table">
             <thead>
@@ -271,10 +278,9 @@ app.get('/dashboard', requireAuth, (req, res) => {
       </section>
 
       <section class="card">
-        <h2>Add Another Book</h2>
-        <p style="color:var(--clr-muted);font-size:.88rem;margin-bottom:1rem;">
-          Books opened from the home page are added automatically.
-          Use this form to track any other book.
+        <h2>Seed Extra Test Data</h2>
+        <p style="color:var(--clr-muted);font-size:.92rem;margin-top:.7rem;">
+          Books opened from the lobby are added automatically. Use this form when you want extra rows for sorting, reporting, or state-based experiments.
         </p>
         <form method="POST" action="/add-book" class="add-book-form">
           <div class="form-row">
@@ -367,15 +373,15 @@ app.get('/read', requireAuth, (req, res) => {
 
   if (!book) {
     return res.status(404).send(htmlPage('Not Found', `
-      <div class="alert alert-danger">Book not found or no PDF available.</div>
-      <a href="/" class="btn">Back to Home</a>
+      <div class="alert alert-danger">Target not found or no PDF is available for that route.</div>
+      <a href="/" class="btn">Back to Lobby</a>
     `, username));
   }
 
   function renderReader(progress) {
     const trackerPanel = `
       <div class="tracker-panel">
-        <span class="tracker-label">📖 Your progress</span>
+        <span class="tracker-label">Progress Marker</span>
         <div class="tracker-progress">
           <div class="progress-container">
             <div class="progress-fill" style="width:${progress}%"></div>
@@ -399,8 +405,8 @@ app.get('/read', requireAuth, (req, res) => {
       : `<div class="no-pdf-notice">
            <div class="no-pdf-icon">📄</div>
            <h2>${book.title}</h2>
-           <p>A PDF for this book isn't available yet, but it's been added to your reading list so you can track your progress.</p>
-           <a href="/" class="btn btn-outline">Back to Library</a>
+           <p>A PDF is not available for this title, but the route still works as a lab target and has been added to your tracked list.</p>
+           <a href="/" class="btn btn-outline">Back to Lobby</a>
          </div>`;
 
     const body = `
@@ -411,8 +417,8 @@ app.get('/read', requireAuth, (req, res) => {
         </div>
         ${trackerPanel}
         <div class="reader-actions">
-          <a href="/dashboard" class="btn btn-outline btn-small">My Books</a>
-          <a href="/"          class="btn btn-small">Home</a>
+          <a href="/dashboard" class="btn btn-outline btn-small">Console</a>
+          <a href="/"          class="btn btn-small">Lobby</a>
         </div>
       </div>
       ${readerContent}
@@ -947,8 +953,8 @@ app.get('/api/challenges', (req, res) => {
 
 app.use((req, res) => {
   res.status(404).send(htmlPage('Not Found', `
-    <div class="alert alert-danger">Page not found.</div>
-    <a href="/" class="btn">Go Home</a>
+    <div class="alert alert-danger">Route not found.</div>
+    <a href="/" class="btn">Go to Lobby</a>
   `));
 });
 
