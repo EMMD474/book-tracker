@@ -1,4 +1,6 @@
-# 📚 BookTracker — Intentionally Vulnerable SQL Injection Lab
+# BookTracker SQLi Lab
+
+> Beginner-to-intermediate SQL injection CTF built with Node.js, Express, and SQLite.
 
 > **⚠️ EDUCATIONAL / SECURITY TRAINING USE ONLY ⚠️**
 >
@@ -11,6 +13,7 @@
 - [Overview](#overview)
 - [Architecture](#architecture)
 - [Quick Start](#quick-start)
+- [Challenge Experience](#challenge-experience)
 - [Demo Credentials](#demo-credentials)
 - [Database Schema](#database-schema)
 - [Vulnerability Catalogue](#vulnerability-catalogue)
@@ -45,18 +48,22 @@
 
 ## Overview
 
-BookTracker is a Node.js/Express web application that lets users:
+BookTracker SQLi Lab is a deliberately vulnerable training application disguised as a polished book-tracking product.
 
-- Browse a catalogue of classic books
-- Read PDFs in-browser
-- Track reading progress with percentage sliders
-- Add/remove books from a personal reading list
-- Write book reviews and personal notes
-- View reading statistics
+From the UI, players can:
+
+- Enter a themed challenge lobby
+- Register or log into an operator account
+- Open book-themed targets from the reader interface
+- Track reading progress and seed extra rows for testing
+- Explore authenticated and unauthenticated API routes
+- Practice beginner-to-intermediate SQL injection techniques in a local lab
 
 Under the hood, **every database query is built via string concatenation** — the cardinal sin of SQL security. This makes the entire application vulnerable to SQL injection at every data touchpoint.
 
-The app has been extended with **20+ distinct SQL injection vulnerabilities** spanning every major injection category, plus a bonus raw SQL execution endpoint.
+The app includes **20+ intentionally unsafe query patterns** spanning every major injection category, plus a bonus raw SQL execution endpoint.
+
+The frontend was also customized to feel like a real CTF instead of a plain demo app: a challenge lobby, operator console, route-oriented target cards, and copy that nudges players from obvious flaws into stored, blind, and chained SQLi.
 
 ---
 
@@ -64,8 +71,8 @@ The app has been extended with **20+ distinct SQL injection vulnerabilities** sp
 
 ```
 book-tracker/
-├── app.js              # Express server — all routes (original + new vulnerable endpoints)
-├── database.js         # SQLite database layer — all vulnerable query functions
+├── app.js              # Express server, route wiring, shared HTML wrappers
+├── database.js         # SQLite data layer with intentionally unsafe queries
 ├── package.json        # Dependencies: express, sqlite3, body-parser, cookie-parser
 ├── books.db            # SQLite database (auto-created on first run)
 ├── books/              # PDF files for the book reader
@@ -75,11 +82,12 @@ book-tracker/
 │   ├── the-hobbit.pdf
 │   └── ...
 ├── public/             # Static frontend files
-│   ├── index.html      # Landing page with book catalogue
-│   ├── login.html      # Login form
-│   ├── register.html   # Registration form
-│   └── styles.css      # Application styles
-└── README.md           # This file
+│   ├── index.html      # Challenge lobby / landing page
+│   ├── login.html      # Operator login screen
+│   ├── register.html   # Account provisioning screen
+│   └── styles.css      # Shared challenge UI styling
+├── README.md           # Lab documentation
+└── write-up.md         # Guided solve path / sample write-up
 ```
 
 **Tech Stack:**
@@ -104,6 +112,35 @@ npm run dev
 ```
 
 Then open **http://localhost:3000** in your browser.
+
+You should land on the challenge lobby. If you want a direct guided solve path for one of the easiest flag routes, see [`write-up.md`](./write-up.md).
+
+---
+
+## Challenge Experience
+
+The updated UI is meant to help beginners ramp up without flattening the challenge:
+
+- **Lobby:** Introduces the mission, skill bands, and target cards.
+- **Operator Login / Registration:** Frames auth and account setup as part of the lab flow.
+- **Console:** Gives players a workspace for seeded data and authenticated route access.
+- **Reader Pages:** Preserve the book-tracker fiction while still functioning as target surfaces.
+
+### Suggested Difficulty Bands
+
+| Band | Good Starting Routes | What Players Learn |
+|------|----------------------|--------------------|
+| **Beginner** | `/login`, `/register`, `/api/search` | Quote handling, comments, tautologies, UNION basics |
+| **Intermediate** | `/api/profile/:username`, `/api/books`, `/api/books/page`, `/api/stats` | Blind inference, clause injection, schema discovery |
+| **Intermediate+** | `/api/reviews`, `/api/reviews/search`, `/api/profile`, `/api/notes`, `/api/admin/query` | Second-order SQLi, stacked statements, privilege escalation, takeover |
+
+### Intended Player Flow
+
+1. Start in the lobby and inspect the target cards.
+2. Use the login flow for first-contact payload testing or create a fresh account.
+3. Pivot into `/dashboard` and the authenticated API set once you want richer attack surfaces.
+4. Use search, profile, notes, reviews, and admin routes to move from obvious flaws to chained exploitation.
+5. Extract flags from `admin_secrets` or other hidden tables as you progress.
 
 ---
 
@@ -764,24 +801,26 @@ Beyond SQL injection, this application also demonstrates:
 
 ## API Endpoint Reference
 
-### Original Endpoints (Web UI)
+### UI / Product Routes
 
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
+| `GET` | `/` | No | Challenge lobby / landing page |
 | `POST` | `/login` | No | Authenticate user |
 | `POST` | `/register` | No | Create new account |
-| `GET` | `/dashboard` | Yes | View reading list |
-| `POST` | `/add-book` | Yes | Add book to list |
+| `GET` | `/dashboard` | Yes | Operator console / reading list |
+| `POST` | `/add-book` | Yes | Add seeded book data |
 | `POST` | `/update-progress` | Yes | Update reading % |
 | `POST` | `/delete-book` | Yes | Remove book |
-| `GET` | `/read?title=<slug>` | Yes | Read a book PDF |
+| `GET` | `/read?title=<slug>` | Yes | Open target reader page |
 | `GET` | `/pdf/:slug` | Yes | Stream PDF file |
 | `GET` | `/logout` | No | Clear cookies |
 
-### New Vulnerable API Endpoints
+### Challenge API Routes
 
 | Method | Path | Auth | Vuln # | Injection Type |
 |--------|------|------|--------|----------------|
+| `GET` | `/api/challenges` | No | — | Route catalogue / hints |
 | `GET` | `/api/search?q=` | No | #8 | UNION-based |
 | `GET` | `/api/profile/:username` | No | #9 | Boolean blind |
 | `GET` | `/api/book/:id` | No | #10 | Time-based blind |
@@ -812,14 +851,21 @@ Beyond SQL injection, this application also demonstrates:
 
 ### Suggested Learning Path
 
-1. **Start with VULN #1** — Classic auth bypass. Try logging in as admin without the password.
-2. **Move to VULN #8** — UNION injection. Extract the users table and find the CTF flag.
-3. **Try VULN #9** — Boolean blind. Write a script to extract passwords character by character.
-4. **Explore VULN #15** — Stacked queries. Create a new admin user via note creation.
-5. **Attempt VULN #18** — Privilege escalation. Promote alice to admin.
-6. **Challenge: VULN #11/#13** — Second-order. Store a payload, then trigger it later.
-7. **Advanced: VULN #10** — Time-based blind. Measure response times to extract data.
-8. **Final Boss: Bonus** — Bypass the admin API key check and run arbitrary SQL.
+1. Start at the lobby and read the target cards before touching Burp or curl.
+2. Use **VULN #1** (`POST /login`) to learn quote breaking, comments, and auth bypass.
+3. Move to **VULN #8** (`GET /api/search?q=`) for your first clean UNION-based extraction.
+4. Create or keep an authenticated session so you can reach `/dashboard` and the authenticated APIs.
+5. Explore **VULN #14**, **#16**, and **#17** to understand injection outside the classic `WHERE` clause.
+6. Practice second-order thinking with **VULN #11 / #13** and the profile/report chain.
+7. Use **VULN #15** and **#18** when you want stacked-query and privilege-escalation practice.
+8. Treat **Bonus / `/api/admin/query`** as the capstone route once you understand the earlier surfaces.
+
+### Player Notes For This UI
+
+- The polished frontend is part of the theme, not a sign that the backend is safer.
+- The dashboard is useful for generating your own rows before testing sort, stats, or pagination routes.
+- The reader pages keep the fiction intact, but the real action is in the form posts, cookies, and API traffic.
+- Cookies remain intentionally weak and readable from the browser for lab purposes.
 
 ### Using sqlmap
 
